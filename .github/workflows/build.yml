@@ -12,29 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install aqt and Qt
+      - name: Install Python and aqt
         run: |
           pip install aqtinstall
           aqt install-qt windows desktop 6.7.2 win64_msvc2019_64 -O C:\Qt
-          echo "Qt6_DIR=C:\Qt\6.7.2\msvc2019_64" >> $env:GITHUB_ENV
-          echo "C:\Qt\6.7.2\msvc2019_64\bin" >> $env:GITHUB_PATH
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 'a34c873a9717a888f58dc05268dea15592c2f822'
 
       - name: Install dependencies via vcpkg
         run: |
-          vcpkg install libtorrent:x64-windows-static
-          vcpkg install boost-system:x64-windows-static
-          vcpkg install openssl:x64-windows-static
-          vcpkg install zlib:x64-windows-static
+          C:\vcpkg\vcpkg install libtorrent:x64-windows-static
+          C:\vcpkg\vcpkg install boost-system:x64-windows-static
+          C:\vcpkg\vcpkg install openssl:x64-windows-static
+          C:\vcpkg\vcpkg install zlib:x64-windows-static
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -46,7 +34,7 @@ jobs:
           cmake -B build -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
             -DQt6_DIR="C:\Qt\6.7.2\msvc2019_64\lib\cmake\Qt6" `
-            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static
 
       - name: Build
