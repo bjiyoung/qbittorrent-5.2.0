@@ -7,19 +7,27 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
-          version: '6.7.0'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_msvc2019_64'
-          modules: 'qtsvg'
+          python-version: '3.12'
+
+      - name: Install aqt and Qt
+        run: |
+          pip install aqtinstall
+          aqt install-qt windows desktop 6.7.2 win64_msvc2019_64 -O C:\Qt
+          echo "Qt6_DIR=C:\Qt\6.7.2\msvc2019_64" >> $env:GITHUB_ENV
+          echo "C:\Qt\6.7.2\msvc2019_64\bin" >> $env:GITHUB_PATH
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 'a34c873a9717a888f58dc05268dea15592c2f822'
 
       - name: Install dependencies via vcpkg
         run: |
@@ -28,14 +36,18 @@ jobs:
           vcpkg install openssl:x64-windows-static
           vcpkg install zlib:x64-windows-static
 
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Configure CMake
-        run: >
-          cmake -B build
-          -G "Visual Studio 17 2022"
-          -A x64
-          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
-          -DCMAKE_BUILD_TYPE=Release
+        run: |
+          cmake -B build -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DQt6_DIR="C:\Qt\6.7.2\msvc2019_64\lib\cmake\Qt6" `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static
 
       - name: Build
         run: cmake --build build --config Release --parallel
@@ -44,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qbittorrent-windows
-          path: build/Release/qbittorrent.exe
+          path: build/qbittorrent.exe
