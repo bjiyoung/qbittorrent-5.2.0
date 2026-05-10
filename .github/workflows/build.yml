@@ -16,7 +16,6 @@ jobs:
         run: |
           pip install aqtinstall
           aqt install-qt windows desktop 6.7.2 win64_msvc2019_64 -O C:\Qt
-          aqt install-qt windows desktop 6.7.2 win64_msvc2019_64 -O C:\Qt --modules qttools qtsvg
 
       - name: Install dependencies via vcpkg
         run: |
