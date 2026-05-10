@@ -13,6 +13,7 @@ jobs:
       boost_path: "${{ github.workspace }}/../boost"
       libtorrent_path: "${{ github.workspace }}/../libtorrent"
       vcpkg_path: "c:/vcpkg"
+      qt_path: "C:/Qt/6.7.2/msvc2019_64"
       libtorrent_version: "2.0.11"
       boost_major: "1"
       boost_minor: "90"
@@ -60,6 +61,12 @@ jobs:
             --overlay-triplets="${{ env.vcpkg_path }}/triplets_overlay" `
             $packages
 
+      - name: Install Qt via aqt
+        run: |
+          pip install aqtinstall
+          python -m aqt install-qt windows desktop 6.7.2 win64_msvc2019_64 `
+            -O C:\Qt
+
       - name: Install Boost
         run: |
           $url = "https://archives.boost.io/release/${{ env.boost_major }}.${{ env.boost_minor }}.${{ env.boost_patch }}/source/boost_${{ env.boost_major }}_${{ env.boost_minor }}_${{ env.boost_patch }}.tar.gz"
@@ -69,13 +76,6 @@ jobs:
           cd "${{ env.boost_path }}"
           ${{ env.vcpkg_path }}/installed/x64-windows-static-md-release/tools/boost-build/b2.exe `
             stage toolset=msvc --stagedir=.\ --with-headers
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: "6.7.2"
-          arch: win64_msvc2022_64
-          cache: true
 
       - name: Build libtorrent
         run: |
@@ -103,6 +103,7 @@ jobs:
         run: |
           cmake -B build -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_PREFIX_PATH="${{ env.qt_path }}" `
             -DCMAKE_TOOLCHAIN_FILE="${{ env.vcpkg_path }}/scripts/buildsystems/vcpkg.cmake" `
             -DBOOST_ROOT="${{ env.boost_path }}/lib/cmake" `
             -DLibtorrentRasterbar_DIR="${{ env.libtorrent_path }}/install/lib/cmake/LibtorrentRasterbar" `
@@ -115,21 +116,21 @@ jobs:
           mkdir upload
           copy build\qbittorrent.exe upload\
           copy dist\windows\qt.conf upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Core.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Gui.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Network.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Sql.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Svg.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Widgets.dll" upload\
-          copy "${{ env.Qt_ROOT_DIR }}\bin\Qt6Xml.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Core.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Gui.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Network.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Sql.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Svg.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Widgets.dll" upload\
+          copy "${{ env.qt_path }}\bin\Qt6Xml.dll" upload\
           mkdir upload\plugins\platforms
-          copy "${{ env.Qt_ROOT_DIR }}\plugins\platforms\qwindows.dll" upload\plugins\platforms\
+          copy "${{ env.qt_path }}\plugins\platforms\qwindows.dll" upload\plugins\platforms\
           mkdir upload\plugins\iconengines
-          copy "${{ env.Qt_ROOT_DIR }}\plugins\iconengines\qsvgicon.dll" upload\plugins\iconengines\
+          copy "${{ env.qt_path }}\plugins\iconengines\qsvgicon.dll" upload\plugins\iconengines\
           mkdir upload\plugins\tls
-          copy "${{ env.Qt_ROOT_DIR }}\plugins\tls\qschannelbackend.dll" upload\plugins\tls\
+          copy "${{ env.qt_path }}\plugins\tls\qschannelbackend.dll" upload\plugins\tls\
           mkdir upload\plugins\sqldrivers
-          copy "${{ env.Qt_ROOT_DIR }}\plugins\sqldrivers\qsqlite.dll" upload\plugins\sqldrivers\
+          copy "${{ env.qt_path }}\plugins\sqldrivers\qsqlite.dll" upload\plugins\sqldrivers\
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
