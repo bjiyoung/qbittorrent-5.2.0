@@ -99,6 +99,22 @@ jobs:
           cmake --build build
           cmake --install build
 
+      - name: Patch ZLIB target in source
+        run: |
+          $file = "src/base/CMakeLists.txt"
+          $patch = @"
+          find_package(ZLIB REQUIRED)
+          if(NOT TARGET ZLIB::ZLIB)
+            add_library(ZLIB::ZLIB UNKNOWN IMPORTED)
+            set_target_properties(ZLIB::ZLIB PROPERTIES
+              IMPORTED_LOCATION "$`{ZLIB_LIBRARY}"
+              INTERFACE_INCLUDE_DIRECTORIES "$`{ZLIB_INCLUDE_DIR}")
+          endif()
+
+          "@
+          $original = Get-Content $file -Raw
+          Set-Content $file ($patch + $original)
+
       - name: Build qBittorrent
         run: |
           cmake -B build -G "Ninja" `
