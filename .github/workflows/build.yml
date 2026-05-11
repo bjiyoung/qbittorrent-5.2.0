@@ -101,10 +101,10 @@ jobs:
 
       - name: Find ZLIB location
         run: |
-          Write-Host "=== vcpkg installed triplets ==="
-          Get-ChildItem "C:/vcpkg/installed/" | Select-Object Name
-          Write-Host "=== zlib*.lib search ==="
-          Get-ChildItem "C:/vcpkg/installed/" -Recurse -Filter "zlib*.lib" | Select-Object FullName
+          Write-Host "=== x64-windows-static-md-release/lib contents ==="
+          Get-ChildItem "C:/vcpkg/installed/x64-windows-static-md-release/lib/" | Select-Object Name
+          Write-Host "=== All .lib files ==="
+          Get-ChildItem "C:/vcpkg/installed/x64-windows-static-md-release/" -Recurse -Filter "*.lib" | Select-Object FullName
 
       - name: Patch ZLIB target in source
         run: |
