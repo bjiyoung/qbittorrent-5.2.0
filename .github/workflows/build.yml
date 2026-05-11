@@ -101,11 +101,14 @@ jobs:
 
       - name: Patch ZLIB target in source
         run: |
-          $zlibLib = "C:/vcpkg/installed/x64-windows-static-md-release/lib/zlib.lib"
+          $zlibDir = "C:/vcpkg/installed/x64-windows-static-md-release/lib"
           $zlibInc = "C:/vcpkg/installed/x64-windows-static-md-release/include"
-          # fallback: try zlibstatic.lib
-          if (-not (Test-Path $zlibLib)) {
-            $zlibLib = "C:/vcpkg/installed/x64-windows-static-md-release/lib/zlibstatic.lib"
+          # Find the actual zlib library file
+          $zlibLib = Get-ChildItem $zlibDir -Filter "zlib*.lib" | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $zlibLib) {
+            Write-Error "zlib library not found in $zlibDir"
+            Get-ChildItem $zlibDir | Write-Host
+            exit 1
           }
           Write-Host "Using ZLIB: $zlibLib"
           $file = "src/base/CMakeLists.txt"
