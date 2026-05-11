@@ -101,14 +101,21 @@ jobs:
 
       - name: Patch ZLIB target in source
         run: |
+          $zlibLib = "C:/vcpkg/installed/x64-windows-static-md-release/lib/zlib.lib"
+          $zlibInc = "C:/vcpkg/installed/x64-windows-static-md-release/include"
+          # fallback: try zlibstatic.lib
+          if (-not (Test-Path $zlibLib)) {
+            $zlibLib = "C:/vcpkg/installed/x64-windows-static-md-release/lib/zlibstatic.lib"
+          }
+          Write-Host "Using ZLIB: $zlibLib"
           $file = "src/base/CMakeLists.txt"
           $patch = @"
-          find_package(ZLIB REQUIRED)
           if(NOT TARGET ZLIB::ZLIB)
-            add_library(ZLIB::ZLIB UNKNOWN IMPORTED)
+            add_library(ZLIB::ZLIB STATIC IMPORTED GLOBAL)
             set_target_properties(ZLIB::ZLIB PROPERTIES
-              IMPORTED_LOCATION "$`{ZLIB_LIBRARY}"
-              INTERFACE_INCLUDE_DIRECTORIES "$`{ZLIB_INCLUDE_DIR}")
+              IMPORTED_LOCATION "$zlibLib"
+              IMPORTED_LOCATION_RELEASE "$zlibLib"
+              INTERFACE_INCLUDE_DIRECTORIES "$zlibInc")
           endif()
 
           "@
