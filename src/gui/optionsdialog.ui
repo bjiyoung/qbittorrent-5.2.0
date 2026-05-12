@@ -1057,6 +1057,62 @@
                 </widget>
                </item>
                <item>
+                <layout class="QHBoxLayout" name="minSizeFilterLayout">
+                 <item>
+                  <widget class="QCheckBox" name="checkMinSizeFilter">
+                   <property name="text">
+                    <string>용량보다 큰 파일 자동 선택:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="spinMinSizeValue">
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>999999</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboMinSizeUnit">
+                   <item>
+                    <property name="text">
+                     <string>KB</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>MB</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>GB</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="minSizeFilterSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="stopConditionLayout">
                  <item>
                   <widget class="QLabel" name="stopConditionLabel">

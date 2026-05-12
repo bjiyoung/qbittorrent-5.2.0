@@ -69,6 +69,7 @@
 #include "base/utils/password.h"
 #include "base/utils/random.h"
 #include "base/utils/sslkey.h"
+#include "base/settingsstorage.h"
 #include "addnewtorrentdialog.h"
 #include "advancedsettings.h"
 #include "banlistoptionsdialog.h"
@@ -579,6 +580,17 @@ void OptionsDialog::loadDownloadsTabOptions()
     m_ui->checkAddToQueueTop->setChecked(session->isAddTorrentToQueueTop());
     m_ui->checkAddStopped->setChecked(session->isAddTorrentStopped());
 
+    // Min-size filter settings
+    {
+        auto *s = SettingsStorage::instance();
+        const bool enabled = s->loadValue<bool>(u"AddNewTorrentDialog/MinSizeFilterEnabled"_s, false);
+        m_ui->checkMinSizeFilter->setChecked(enabled);
+        m_ui->spinMinSizeValue->setValue(s->loadValue<int>(u"AddNewTorrentDialog/MinSizeFilterValue"_s, 0));
+        m_ui->comboMinSizeUnit->setCurrentIndex(s->loadValue<int>(u"AddNewTorrentDialog/MinSizeFilterUnit"_s, 1));
+        m_ui->spinMinSizeValue->setEnabled(enabled);
+        m_ui->comboMinSizeUnit->setEnabled(enabled);
+    }
+
     m_ui->stopConditionComboBox->setToolTip(
                 u"<html><body><p><b>" + tr("None") + u"</b> - " + tr("No stop condition is set.") + u"</p><p><b>" +
                 tr("Metadata received") + u"</b> - " + tr("Torrent will stop after metadata is received.") +
@@ -712,6 +724,14 @@ void OptionsDialog::loadDownloadsTabOptions()
     connect(m_ui->checkAddToQueueTop, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkAddStopped, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkAddStopped, &QAbstractButton::toggled, this, [this](const bool checked)
+    connect(m_ui->checkMinSizeFilter, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
+    connect(m_ui->checkMinSizeFilter, &QAbstractButton::toggled, this, [this](const bool checked)
+    {
+        m_ui->spinMinSizeValue->setEnabled(checked);
+        m_ui->comboMinSizeUnit->setEnabled(checked);
+    });
+    connect(m_ui->spinMinSizeValue, QOverload<int>::of(&QSpinBox::valueChanged), this, &ThisType::enableApplyButton);
+    connect(m_ui->comboMinSizeUnit, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThisType::enableApplyButton);
     {
         m_ui->stopConditionLabel->setEnabled(!checked);
         m_ui->stopConditionComboBox->setEnabled(!checked);
@@ -788,6 +808,14 @@ void OptionsDialog::saveDownloadsTabOptions() const
     session->setAddTorrentToQueueTop(m_ui->checkAddToQueueTop->isChecked());
     session->setAddTorrentStopped(addTorrentsStopped());
     session->setTorrentStopCondition(m_ui->stopConditionComboBox->currentData().value<BitTorrent::Torrent::StopCondition>());
+
+    // Min-size filter settings
+    {
+        auto *s = SettingsStorage::instance();
+        s->storeValue(u"AddNewTorrentDialog/MinSizeFilterEnabled"_s, m_ui->checkMinSizeFilter->isChecked());
+        s->storeValue(u"AddNewTorrentDialog/MinSizeFilterValue"_s, m_ui->spinMinSizeValue->value());
+        s->storeValue(u"AddNewTorrentDialog/MinSizeFilterUnit"_s, m_ui->comboMinSizeUnit->currentIndex());
+    }
     TorrentFileGuard::setAutoDeleteMode(!m_ui->deleteTorrentBox->isChecked() ? TorrentFileGuard::Never
                              : !m_ui->deleteCancelledTorrentBox->isChecked() ? TorrentFileGuard::IfAdded
                              : TorrentFileGuard::Always);
