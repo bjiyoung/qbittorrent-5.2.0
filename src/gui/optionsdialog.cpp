@@ -724,6 +724,10 @@ void OptionsDialog::loadDownloadsTabOptions()
     connect(m_ui->checkAddToQueueTop, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkAddStopped, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkAddStopped, &QAbstractButton::toggled, this, [this](const bool checked)
+    {
+        m_ui->stopConditionLabel->setEnabled(!checked);
+        m_ui->stopConditionComboBox->setEnabled(!checked);
+    });
     connect(m_ui->checkMinSizeFilter, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkMinSizeFilter, &QAbstractButton::toggled, this, [this](const bool checked)
     {
@@ -732,10 +736,6 @@ void OptionsDialog::loadDownloadsTabOptions()
     });
     connect(m_ui->spinMinSizeValue, QOverload<int>::of(&QSpinBox::valueChanged), this, &ThisType::enableApplyButton);
     connect(m_ui->comboMinSizeUnit, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThisType::enableApplyButton);
-    {
-        m_ui->stopConditionLabel->setEnabled(!checked);
-        m_ui->stopConditionComboBox->setEnabled(!checked);
-    });
     connect(m_ui->stopConditionComboBox, qComboBoxCurrentIndexChanged, this, &ThisType::enableApplyButton);
     connect(m_ui->checkMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkConfirmMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
