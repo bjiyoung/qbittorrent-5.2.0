@@ -111,15 +111,17 @@ jobs:
           git clone --depth 1 --branch v1.3.1 https://github.com/madler/zlib.git ../zlib-src
           cmake -B ../zlib-src/build -S ../zlib-src -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
-            -DCMAKE_INSTALL_PREFIX="C:/zlib-install"
+            -DCMAKE_INSTALL_PREFIX="C:/zlib-install" `
+            -DBUILD_SHARED_LIBS=OFF
           cmake --build ../zlib-src/build
           cmake --install ../zlib-src/build
 
       - name: Patch ZLIB target in source
         run: |
-          $zlibLib = "C:/zlib-install/lib/zlib.lib"
+          # Prefer static lib (zlibstatic.lib) over import lib (zlib.lib)
+          $zlibLib = "C:/zlib-install/lib/zlibstatic.lib"
           if (-not (Test-Path $zlibLib)) {
-            $zlibLib = "C:/zlib-install/lib/zlibstatic.lib"
+            $zlibLib = "C:/zlib-install/lib/zlib.lib"
           }
           $zlibInc = "C:/zlib-install/include"
           Write-Host "Using ZLIB: $zlibLib"
