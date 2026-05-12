@@ -91,6 +91,7 @@ private:
     struct Context;
 
     void showEvent(QShowEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     void setCurrentContext(std::shared_ptr<Context> context);
     void updateCurrentContext();

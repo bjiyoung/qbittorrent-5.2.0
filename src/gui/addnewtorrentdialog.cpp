@@ -483,8 +483,30 @@ void AddNewTorrentDialog::showEvent(QShowEvent *event)
     activateWindow();
     raise();
 
+    // Install event filter on all child widgets to stop countdown on any click
+    const auto children = findChildren<QWidget *>();
+    for (QWidget *child : children)
+        child->installEventFilter(this);
+
     if (m_minSizeCheckBox && m_minSizeCheckBox->isChecked())
-        startOkCountdown();
+    {
+        auto *s = SettingsStorage::instance();
+        if (s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true))
+            startOkCountdown();
+    }
+}
+
+bool AddNewTorrentDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if (m_countdownTimer && m_countdownTimer->isActive())
+    {
+        if (event->type() == QEvent::MouseButtonPress
+            || event->type() == QEvent::KeyPress)
+        {
+            stopOkCountdown();
+        }
+    }
+    return QDialog::eventFilter(watched, event);
 }
 
 void AddNewTorrentDialog::setCurrentContext(const std::shared_ptr<Context> context)

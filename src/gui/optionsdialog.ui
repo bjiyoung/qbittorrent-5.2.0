@@ -1113,9 +1113,14 @@
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="checkCountdownEnabled">
+                 <property name="text">
+                  <string>자동 선택 시 OK 버튼 카운트다운 활성화</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="stopConditionLayout">
-                 <item>
-                  <widget class="QLabel" name="stopConditionLabel">
                    <property name="text">
                     <string>Torrent stop condition:</string>
                    </property>

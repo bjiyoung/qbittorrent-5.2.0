@@ -589,6 +589,8 @@ void OptionsDialog::loadDownloadsTabOptions()
         m_ui->comboMinSizeUnit->setCurrentIndex(s->loadValue<int>(u"AddNewTorrentDialog/MinSizeFilterUnit"_s, 1));
         m_ui->spinMinSizeValue->setEnabled(enabled);
         m_ui->comboMinSizeUnit->setEnabled(enabled);
+        m_ui->checkCountdownEnabled->setChecked(s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true));
+        m_ui->checkCountdownEnabled->setEnabled(enabled);
     }
 
     m_ui->stopConditionComboBox->setToolTip(
@@ -733,9 +735,11 @@ void OptionsDialog::loadDownloadsTabOptions()
     {
         m_ui->spinMinSizeValue->setEnabled(checked);
         m_ui->comboMinSizeUnit->setEnabled(checked);
+        m_ui->checkCountdownEnabled->setEnabled(checked);
     });
     connect(m_ui->spinMinSizeValue, QOverload<int>::of(&QSpinBox::valueChanged), this, &ThisType::enableApplyButton);
     connect(m_ui->comboMinSizeUnit, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThisType::enableApplyButton);
+    connect(m_ui->checkCountdownEnabled, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->stopConditionComboBox, qComboBoxCurrentIndexChanged, this, &ThisType::enableApplyButton);
     connect(m_ui->checkMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkConfirmMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
@@ -815,6 +819,7 @@ void OptionsDialog::saveDownloadsTabOptions() const
         s->storeValue(u"AddNewTorrentDialog/MinSizeFilterEnabled"_s, m_ui->checkMinSizeFilter->isChecked());
         s->storeValue(u"AddNewTorrentDialog/MinSizeFilterValue"_s, m_ui->spinMinSizeValue->value());
         s->storeValue(u"AddNewTorrentDialog/MinSizeFilterUnit"_s, m_ui->comboMinSizeUnit->currentIndex());
+        s->storeValue(u"AddNewTorrentDialog/CountdownEnabled"_s, m_ui->checkCountdownEnabled->isChecked());
     }
     TorrentFileGuard::setAutoDeleteMode(!m_ui->deleteTorrentBox->isChecked() ? TorrentFileGuard::Never
                              : !m_ui->deleteCancelledTorrentBox->isChecked() ? TorrentFileGuard::IfAdded
