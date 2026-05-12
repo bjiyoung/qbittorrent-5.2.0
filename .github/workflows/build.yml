@@ -106,17 +106,22 @@ jobs:
           Write-Host "=== All .lib files ==="
           Get-ChildItem "C:/vcpkg/installed/x64-windows-static-md-release/" -Recurse -Filter "*.lib" | Select-Object FullName
 
+      - name: Build zlib from source
+        run: |
+          git clone --depth 1 --branch v1.3.1 https://github.com/madler/zlib.git ../zlib-src
+          cmake -B ../zlib-src/build -S ../zlib-src -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX="C:/zlib-install"
+          cmake --build ../zlib-src/build
+          cmake --install ../zlib-src/build
+
       - name: Patch ZLIB target in source
         run: |
-          $zlibDir = "C:/vcpkg/installed/x64-windows-static-md-release/lib"
-          $zlibInc = "C:/vcpkg/installed/x64-windows-static-md-release/include"
-          # Find the actual zlib library file
-          $zlibLib = Get-ChildItem $zlibDir -Filter "zlib*.lib" | Select-Object -First 1 -ExpandProperty FullName
-          if (-not $zlibLib) {
-            Write-Error "zlib library not found in $zlibDir"
-            Get-ChildItem $zlibDir | Write-Host
-            exit 1
+          $zlibLib = "C:/zlib-install/lib/zlib.lib"
+          if (-not (Test-Path $zlibLib)) {
+            $zlibLib = "C:/zlib-install/lib/zlibstatic.lib"
           }
+          $zlibInc = "C:/zlib-install/include"
           Write-Host "Using ZLIB: $zlibLib"
           $file = "src/base/CMakeLists.txt"
           $patch = @"
