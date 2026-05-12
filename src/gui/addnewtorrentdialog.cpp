@@ -1055,6 +1055,7 @@ void AddNewTorrentDialog::applyMinSizeFilter()
     }
 
     m_contentAdaptor->prioritizeFiles(priorities);
+    m_ui->contentTreeView->refresh();
 }
 
 void AddNewTorrentDialog::saveMinSizeFilterSettings()
