@@ -1121,6 +1121,8 @@
                </item>
                <item>
                 <layout class="QHBoxLayout" name="stopConditionLayout">
+                 <item>
+                  <widget class="QLabel" name="stopConditionLabel">
                    <property name="text">
                     <string>Torrent stop condition:</string>
                    </property>
