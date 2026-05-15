@@ -591,6 +591,11 @@ void OptionsDialog::loadDownloadsTabOptions()
         m_ui->comboMinSizeUnit->setEnabled(enabled);
         m_ui->checkCountdownEnabled->setChecked(s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true));
         m_ui->checkCountdownEnabled->setEnabled(enabled);
+        const int cdSecs = s->loadValue<int>(u"AddNewTorrentDialog/CountdownSeconds"_s, 10);
+        m_ui->spinCountdownSeconds->setValue(cdSecs);
+        m_ui->spinCountdownSeconds->setEnabled(enabled && m_ui->checkCountdownEnabled->isChecked());
+        m_ui->labelCountdownSeconds->setEnabled(enabled && m_ui->checkCountdownEnabled->isChecked());
+        m_ui->labelCountdownSecondsUnit->setEnabled(enabled && m_ui->checkCountdownEnabled->isChecked());
     }
 
     m_ui->stopConditionComboBox->setToolTip(
@@ -736,10 +741,21 @@ void OptionsDialog::loadDownloadsTabOptions()
         m_ui->spinMinSizeValue->setEnabled(checked);
         m_ui->comboMinSizeUnit->setEnabled(checked);
         m_ui->checkCountdownEnabled->setEnabled(checked);
+        const bool cdEnabled = checked && m_ui->checkCountdownEnabled->isChecked();
+        m_ui->spinCountdownSeconds->setEnabled(cdEnabled);
+        m_ui->labelCountdownSeconds->setEnabled(cdEnabled);
+        m_ui->labelCountdownSecondsUnit->setEnabled(cdEnabled);
     });
     connect(m_ui->spinMinSizeValue, QOverload<int>::of(&QSpinBox::valueChanged), this, &ThisType::enableApplyButton);
     connect(m_ui->comboMinSizeUnit, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThisType::enableApplyButton);
     connect(m_ui->checkCountdownEnabled, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
+    connect(m_ui->checkCountdownEnabled, &QAbstractButton::toggled, this, [this](const bool checked)
+    {
+        m_ui->spinCountdownSeconds->setEnabled(checked);
+        m_ui->labelCountdownSeconds->setEnabled(checked);
+        m_ui->labelCountdownSecondsUnit->setEnabled(checked);
+    });
+    connect(m_ui->spinCountdownSeconds, QOverload<int>::of(&QSpinBox::valueChanged), this, &ThisType::enableApplyButton);
     connect(m_ui->stopConditionComboBox, qComboBoxCurrentIndexChanged, this, &ThisType::enableApplyButton);
     connect(m_ui->checkMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
     connect(m_ui->checkConfirmMergeTrackers, &QAbstractButton::toggled, this, &ThisType::enableApplyButton);
@@ -820,6 +836,7 @@ void OptionsDialog::saveDownloadsTabOptions() const
         s->storeValue(u"AddNewTorrentDialog/MinSizeFilterValue"_s, m_ui->spinMinSizeValue->value());
         s->storeValue(u"AddNewTorrentDialog/MinSizeFilterUnit"_s, m_ui->comboMinSizeUnit->currentIndex());
         s->storeValue(u"AddNewTorrentDialog/CountdownEnabled"_s, m_ui->checkCountdownEnabled->isChecked());
+        s->storeValue(u"AddNewTorrentDialog/CountdownSeconds"_s, m_ui->spinCountdownSeconds->value());
     }
     TorrentFileGuard::setAutoDeleteMode(!m_ui->deleteTorrentBox->isChecked() ? TorrentFileGuard::Never
                              : !m_ui->deleteCancelledTorrentBox->isChecked() ? TorrentFileGuard::IfAdded

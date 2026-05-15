@@ -1117,7 +1117,9 @@ void AddNewTorrentDialog::startOkCountdown()
     if (!okBtn)
         return;
 
-    m_countdownValue = 10;
+    auto *s = SettingsStorage::instance();
+    m_countdownValue = s->loadValue<int>(u"AddNewTorrentDialog/CountdownSeconds"_s, 10);
+    m_countdownValue = qBound(3, m_countdownValue, 60);
     okBtn->setText(tr("OK(%1)").arg(m_countdownValue));
 
     m_countdownTimer = new QTimer(this);
