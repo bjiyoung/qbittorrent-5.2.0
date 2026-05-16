@@ -383,10 +383,16 @@ AddNewTorrentDialog::AddNewTorrentDialog(const BitTorrent::TorrentDescriptor &to
         m_minSizeSpinBox->setEnabled(checked);
         m_minSizeUnitCombo->setEnabled(checked);
         onMinSizeChanged();
-        if (checked)
-            startOkCountdown();
+        if (checked && isVisible() && m_contentAdaptor)
+        {
+            auto *s = SettingsStorage::instance();
+            if (s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true))
+                startOkCountdown();
+        }
         else
+        {
             stopOkCountdown();
+        }
     });
     connect(m_minSizeSpinBox,  QOverload<int>::of(&QSpinBox::valueChanged),        this, onMinSizeChanged);
     connect(m_minSizeUnitCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, onMinSizeChanged);
@@ -488,7 +494,8 @@ void AddNewTorrentDialog::showEvent(QShowEvent *event)
     for (QWidget *child : children)
         child->installEventFilter(this);
 
-    if (m_minSizeCheckBox && m_minSizeCheckBox->isChecked())
+    // If treeview is already loaded (e.g. .torrent file), start countdown now
+    if (m_contentAdaptor && m_minSizeCheckBox && m_minSizeCheckBox->isChecked())
     {
         auto *s = SettingsStorage::instance();
         if (s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true))
@@ -1023,6 +1030,15 @@ void AddNewTorrentDialog::setupTreeview()
     applyMinSizeFilter();
 
     updateDiskSpaceLabel();
+
+    // Start countdown only after file list is fully loaded AND dialog is already visible
+    // (covers magnet links where metadata arrives after showEvent)
+    if (isVisible() && m_minSizeCheckBox && m_minSizeCheckBox->isChecked())
+    {
+        auto *s = SettingsStorage::instance();
+        if (s->loadValue<bool>(u"AddNewTorrentDialog/CountdownEnabled"_s, true))
+            startOkCountdown();
+    }
 }
 
 void AddNewTorrentDialog::TMMChanged(int index)
